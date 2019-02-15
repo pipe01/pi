@@ -203,16 +203,22 @@ namespace Pi
 
         private Expression ParseExpression(bool @throw = true)
         {
+            bool startsWithParenthesis = Take(LexemeKind.LeftParenthesis, out _);
+            Expression ret = null;
+
             if (Take(LexemeKind.StringLiteral, out var str))
-                return new ConstantExpression(str.Content, ConstantKind.String);
+                ret = new ConstantExpression(str.Content, ConstantKind.String);
             else if (Take(LexemeKind.IntegerLiteral, out var @int))
-                return new ConstantExpression(@int.Content, ConstantKind.Integer);
+                ret = new ConstantExpression(@int.Content, ConstantKind.Integer);
             else if (Take(LexemeKind.DecimalLiteral, out var dec))
-                return new ConstantExpression(dec.Content, ConstantKind.Decimal);
+                ret = new ConstantExpression(dec.Content, ConstantKind.Decimal);
             else if (TakeKeyword("true", @throw: false) != null)
-                return new ConstantExpression("true", ConstantKind.Boolean);
+                ret = new ConstantExpression("true", ConstantKind.Boolean);
             else if (TakeKeyword("false", @throw: false) != null)
-                return new ConstantExpression("false", ConstantKind.Boolean);
+                ret = new ConstantExpression("false", ConstantKind.Boolean);
+
+            if (ret != null)
+                goto exit;
 
             var references = new List<Expression>();
 
@@ -233,15 +239,21 @@ namespace Pi
                 var reference = new ReferenceExpression(references);
 
                 if (Take(LexemeKind.LeftParenthesis, out _))
-                    return new MethodCallExpression(TakeParameters(), reference);
+                    ret = new MethodCallExpression(TakeParameters(), reference);
+                else
+                    ret = reference;
 
-                return reference;
+                goto exit;
             }
 
             if (@throw)
                 Error($"Expected expression, got {NextNonWhitespace}");
 
-            return null;
+        exit:
+            if (startsWithParenthesis && !Take(LexemeKind.RightParenthesis, out _))
+                Error("Missing closing parentheses");
+
+            return ret;
         }
 
         private VariableDeclaration ParseVariableDeclaration()

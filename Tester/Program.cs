@@ -62,7 +62,7 @@ namespace Tester
                     Console.WriteLine();
                     Console.WriteLine(ex.Message);
                     Console.WriteLine(src.Lines()[ex.Location.Line]);
-                    Console.WriteLine(new string(' ', ex.Location.Column) + "^");
+                    Console.WriteLine(new string(' ', ex.Location.Column - 1) + "^");
 
                     return;
                 }

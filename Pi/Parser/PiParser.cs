@@ -91,6 +91,12 @@ namespace Pi
                 Index = Lexemes.Length - 1;
         }
         
+        private void AdvanceUntilNotWhitespace()
+        {
+            do Advance();
+            while (Current.Kind == LexemeKind.Whitespace);
+        }
+
         private void Back()
         {
             Index--;
@@ -204,8 +210,22 @@ namespace Pi
         private Expression ParseExpression(bool @throw = true)
         {
             bool startsWithParenthesis = Take(LexemeKind.LeftParenthesis, out _);
+
             Expression ret = null;
 
+            if (startsWithParenthesis)
+            {
+                ret = ParseExpression();
+
+                if (NextNonWhitespace.Kind != LexemeKind.RightParenthesis)
+                    Error("Missing closing parentheses");
+
+                Advance();
+
+                goto exit;
+            }
+
+            //Try to parse literal
             if (Take(LexemeKind.StringLiteral, out var str))
                 ret = new ConstantExpression(str.Content, ConstantKind.String);
             else if (Take(LexemeKind.IntegerLiteral, out var @int))
@@ -219,7 +239,8 @@ namespace Pi
 
             if (ret != null)
                 goto exit;
-
+            
+            //Try to parse method call
             var references = new List<Expression>();
 
             //Take identifiers and dots
@@ -250,8 +271,35 @@ namespace Pi
                 Error($"Expected expression, got {NextNonWhitespace}");
 
         exit:
-            if (startsWithParenthesis && !Take(LexemeKind.RightParenthesis, out _))
-                Error("Missing closing parentheses");
+            //Check for binary operator
+            BinaryOperators? op = null;
+
+            switch (NextNonWhitespace.Kind)
+            {
+                case LexemeKind.Plus:
+                    op = BinaryOperators.Add;
+                    break;
+                case LexemeKind.Minus:
+                    op = BinaryOperators.Subtract;
+                    break;
+                case LexemeKind.Mult:
+                    op = BinaryOperators.Multiply;
+                    break;
+                case LexemeKind.Div:
+                    op = BinaryOperators.Divide;
+                    break;
+            }
+
+            if (op != null)
+            {
+                Advance();
+                AdvanceUntilNotWhitespace();
+
+                var left = ret;
+                var right = ParseExpression();
+
+                return new BinaryExpression(left, right, op.Value);
+            }
 
             return ret;
         }

@@ -5,11 +5,12 @@ namespace Pi
     [Serializable]
     public class SyntaxException : Exception
     {
-        public SyntaxException() { }
-        public SyntaxException(string message) : base(message) { }
-        public SyntaxException(string message, Exception inner) : base(message, inner) { }
-        protected SyntaxException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+        private string _Message;
+        public override string Message => _Message;
+
+        public SyntaxException(string message, SourceLocation location)
+        {
+            _Message = message + $" at line {location.Line}, column {location.Column}";
+        }
     }
 }

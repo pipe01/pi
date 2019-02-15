@@ -36,6 +36,11 @@ namespace Pi
                 Advance();
         }
 
+        private void Error(string msg)
+        {
+            throw new SyntaxException(msg, Current.Begin);
+        }
+
         private Lexeme TakeAny()
         {
             var token = Current;
@@ -49,7 +54,7 @@ namespace Pi
                 SkipWhitespaces();
 
             if (Current.Kind != lexemeKind)
-                throw new SyntaxException($"Unexpected lexeme. Expected {lexemeKind}, found {Current}");
+                Error($"Unexpected lexeme: expected {lexemeKind}, found {Current}");
 
             return TakeAny();
         }
@@ -74,7 +79,7 @@ namespace Pi
             if (Current.Kind != LexemeKind.Keyword || Current.Content != keyword)
             {
                 if (@throw)
-                    throw new SyntaxException($"Unexpected lexeme. Expected '{keyword}' keyword, found {Current}");
+                    Error($"Unexpected lexeme: expected '{keyword}' keyword, found {Current}");
                 else
                     return null;
             }
@@ -105,13 +110,14 @@ namespace Pi
                     break;
 
                 if (NextNonWhitespace.Kind != LexemeKind.Identifier)
-                    throw new SyntaxException("Expected expression after dot");
+                    Error("Expected identifier after dot");
             }
 
             if (references.Count > 0)
                 return new ReferenceExpression(references);
 
-            throw new SyntaxException($"Expected expression, got {NextNonWhitespace}");
+            Error($"Expected expression, got {NextNonWhitespace}");
+            return null;
         }
 
         public Declaration ParseDeclaration()

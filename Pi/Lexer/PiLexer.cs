@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Pi
+namespace Pi.Lexer
 {
-    public class Lexer
+    internal class PiLexer
     {
         private static readonly string[] Keywords = { "let", "function", "true", "false" };
 
-        private string Source;
+        private readonly string Source;
 
         private int Column;
         private int Index;
@@ -29,7 +28,7 @@ namespace Pi
 
         public ErrorSink Errors { get; } = new ErrorSink();
 
-        public Lexer(string source)
+        public PiLexer(string source)
         {
             this.Source = source.Replace("\r\n", "\n");
 

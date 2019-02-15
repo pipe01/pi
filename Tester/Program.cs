@@ -1,4 +1,5 @@
 ﻿using Pi;
+using Pi.Lexer;
 using Pi.Parser.Syntax;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace Tester
         {
             string src = File.ReadAllText("./src.pi");
 
-            var lexer = new Lexer(src);
+            var lexer = new PiLexer(src);
             var l = lexer.Lex();
 
             foreach (var error in lexer.Errors)

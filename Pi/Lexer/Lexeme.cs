@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 
-namespace Pi
+namespace Pi.Lexer
 {
-    public enum LexemeKind
+    internal enum LexemeKind
     {
         NewLine,
         Whitespace,
@@ -46,7 +46,7 @@ namespace Pi
     }
 
     [DebuggerDisplay("{Kind}: {Content}")]
-    public sealed class Lexeme
+    internal sealed class Lexeme
     {
         public LexemeKind Kind { get; }
         public SourceLocation Begin { get; }

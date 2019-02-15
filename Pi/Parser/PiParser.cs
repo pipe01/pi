@@ -1,4 +1,5 @@
-﻿using Pi.Parser.Syntax;
+﻿using Pi.Lexer;
+using Pi.Parser.Syntax;
 using Pi.Parser.Syntax.Declarations;
 using Pi.Parser.Syntax.Expressions;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Linq;
 
 namespace Pi
 {
-    public class PiParser
+    internal class PiParser
     {
         private Lexeme[] Lexemes;
 

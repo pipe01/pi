@@ -22,31 +22,59 @@ namespace Pi
 
             while (Current.Kind != LexemeKind.EndOfFile)
             {
-                if (Current.Kind == LexemeKind.Keyword)
+                foreach (var item in ParseBlock(false))
                 {
-                    switch (Current.Content)
-                    {
-                        case "let":
-                            yield return ParseVariableDeclaration();
-                            break;
-                        case "function":
-                            yield return ParseFunctionDeclaration();
-                            break;
-                        default:
-                            Error($"Invalid keyword \"{Current.Content}\"");
-                            break;
-                    }
+                    yield return item;
                 }
-                else
+            }
+        }
+
+        private IEnumerable<Node> ParseBlock(bool checkBraces)
+        {
+            if (checkBraces && !Take(LexemeKind.LeftBrace, out _))
+                Error("Missing opening braces");
+
+            while (true)
+            {
+                switch (Current.Kind)
                 {
-                    Advance();
+                    case LexemeKind.Keyword:
+                        switch (Current.Content)
+                        {
+                            case "let":
+                                yield return ParseVariableDeclaration();
+                                break;
+                            case "function":
+                                yield return ParseFunctionDeclaration();
+                                break;
+                            default:
+                                Error($"Invalid keyword \"{Current.Content}\"");
+                                break;
+                        }
+                        break;
+                    case LexemeKind.RightBrace when checkBraces:
+                    case LexemeKind.EndOfFile when !checkBraces:
+                        Advance();
+                        goto breakLoop;
+                    case LexemeKind.Whitespace:
+                    case LexemeKind.NewLine:
+                        Advance();
+                        break;
+                    default:
+                    Error("Invalid lexeme found: " + Current);
+                        break;
                 }
+
+            breakLoop:;
             }
         }
 
         private void Advance()
         {
             Index++;
+
+            if (Index >= Lexemes.Length)
+                Index = Lexemes.Length - 1;
         }
         
         private void SkipWhitespaces(bool alsoNewlines = true)
@@ -229,8 +257,9 @@ namespace Pi
                 Error("Missing opening parenthesis for method declaration");
 
             var @params = TakeParameterDeclarations();
+            var body = ParseBlock(true).ToArray();
 
-            return new FunctionDeclaration(name.Content, @params, null);
+            return new FunctionDeclaration(name.Content, @params, body);
         }
     }
 }

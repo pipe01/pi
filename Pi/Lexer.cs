@@ -209,6 +209,8 @@ namespace Pi
                     Consume();
                     if (Char == '=')
                         return Lexeme(LexemeKind.EqualsCompare);
+                    else if (Char == '>')
+                        return Lexeme(LexemeKind.FatArrow);
 
                     Back();
                     return Lexeme(LexemeKind.EqualsAssign);

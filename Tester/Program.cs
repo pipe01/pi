@@ -12,8 +12,10 @@ let what = ""asd this is a string"";
 
 function hello(param1, param2)
 {
+    let hello = ""idk"";
+}
 
-}");
+hello();");
             var l = lexer.Lex();
 
             foreach (var error in lexer.Errors)

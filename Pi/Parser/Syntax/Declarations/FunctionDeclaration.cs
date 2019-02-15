@@ -5,9 +5,9 @@ namespace Pi.Parser.Syntax.Declarations
     public sealed class FunctionDeclaration : Declaration
     {
         public IEnumerable<ParameterDeclaration> Parameters { get; }
-        public Statement Body { get; }
+        public IEnumerable<Node> Body { get; }
 
-        public FunctionDeclaration(string name, IEnumerable<ParameterDeclaration> parameters, Statement body) : base(name)
+        public FunctionDeclaration(string name, IEnumerable<ParameterDeclaration> parameters, IEnumerable<Node> body) : base(name)
         {
             this.Parameters = parameters;
             this.Body = body;

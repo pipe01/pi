@@ -16,6 +16,7 @@ namespace Pi
         Semicolon,
         Comma,
         Dot,
+        FatArrow,
 
         EqualsAssign,
         EqualsCompare,

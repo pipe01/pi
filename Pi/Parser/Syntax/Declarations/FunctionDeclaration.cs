@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Pi.Parser.Syntax.Declarations
 {
@@ -9,7 +7,7 @@ namespace Pi.Parser.Syntax.Declarations
         public IEnumerable<ParameterDeclaration> Parameters { get; }
         public Statement Body { get; }
 
-        public FunctionDeclaration(IEnumerable<ParameterDeclaration> parameters, Statement body, string name) : base(name)
+        public FunctionDeclaration(string name, IEnumerable<ParameterDeclaration> parameters, Statement body) : base(name)
         {
             this.Parameters = parameters;
             this.Body = body;

@@ -22,7 +22,25 @@ namespace Pi
 
             while (Current.Kind != LexemeKind.EndOfFile)
             {
-                yield return ParseVariableDeclaration();
+                if (Current.Kind == LexemeKind.Keyword)
+                {
+                    switch (Current.Content)
+                    {
+                        case "let":
+                            yield return ParseVariableDeclaration();
+                            break;
+                        case "function":
+                            yield return ParseFunctionDeclaration();
+                            break;
+                        default:
+                            Error($"Invalid keyword \"{Current.Content}\"");
+                            break;
+                    }
+                }
+                else
+                {
+                    Advance();
+                }
             }
         }
 
@@ -112,6 +130,27 @@ namespace Pi
             return ret;
         }
 
+        private IEnumerable<ParameterDeclaration> TakeParameterDeclarations()
+        {
+            var ret = new List<ParameterDeclaration>();
+
+            do
+            {
+                var param = Take(LexemeKind.Identifier);
+
+                if (param == null)
+                    break;
+
+                ret.Add(new ParameterDeclaration(param.Content));
+            }
+            while (Take(LexemeKind.Comma, out _));
+
+            if (!Take(LexemeKind.RightParenthesis, out _))
+                Error("Missing closing parentheses for method declaration");
+
+            return ret;
+        }
+
         public Expression ParseExpression(bool @throw = true)
         {
             if (Take(LexemeKind.StringLiteral, out var str))
@@ -179,6 +218,19 @@ namespace Pi
                 Error("Missing semicolon");
 
             return ret;
+        }
+
+        public FunctionDeclaration ParseFunctionDeclaration()
+        {
+            var func = TakeKeyword("function");
+            var name = Take(LexemeKind.Identifier);
+
+            if (!Take(LexemeKind.LeftParenthesis, out _))
+                Error("Missing opening parenthesis for method declaration");
+
+            var @params = TakeParameterDeclarations();
+
+            return new FunctionDeclaration(name.Content, @params, null);
         }
     }
 }

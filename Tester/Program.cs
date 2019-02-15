@@ -8,7 +8,12 @@ namespace Tester
         static void Main(string[] args)
         {
             var lexer = new Lexer(@"let hello = asd.lol.nice(23, ""dab"", test.method(""calling"", 123));
-let what = ""asd this is a string"";");
+let what = ""asd this is a string"";
+
+function hello(param1, param2)
+{
+
+}");
             var l = lexer.Lex();
 
             foreach (var error in lexer.Errors)

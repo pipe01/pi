@@ -3,11 +3,11 @@ using System;
 
 namespace Tester
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
-            var lexer = new Lexer(@"let hell1o = 12.1;
+            var lexer = new Lexer(@"let hell1o = asd.lol.;
 let what = ""asd this is a string""[123, 2];
 
 function hello(arg1, arg2)
@@ -37,6 +37,10 @@ function hello(arg1, arg2)
                     Console.WriteLine("{0,-15}: \"{1}\"", item.Kind, item.Content);
                 }
             }
+
+            var parser = new PiParser(l);
+
+            var decl = parser.ParseDeclaration();
 
             Console.ReadKey(true);
         }

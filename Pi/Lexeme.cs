@@ -17,7 +17,8 @@ namespace Pi
         Comma,
         Dot,
 
-        Equals,
+        EqualsAssign,
+        EqualsCompare,
         NotEqual,
 
         GreaterThan,
@@ -58,5 +59,7 @@ namespace Pi
             this.End = end;
             this.Content = content;
         }
+
+        public override string ToString() => $"\"{Content}\" ({Kind})";
     }
 }

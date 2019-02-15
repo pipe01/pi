@@ -6,7 +6,7 @@ namespace Pi
 {
     public class Lexer
     {
-        private static readonly string[] Keywords = { "let", "function" };
+        private static readonly string[] Keywords = { "let", "function", "true", "false" };
 
         private string Source;
 
@@ -206,7 +206,12 @@ namespace Pi
                 case '.':
                     return Lexeme(LexemeKind.Dot);
                 case '=':
-                    return Lexeme(LexemeKind.Equals);
+                    Consume();
+                    if (Char == '=')
+                        return Lexeme(LexemeKind.EqualsCompare);
+
+                    Back();
+                    return Lexeme(LexemeKind.EqualsAssign);
                 case '!':
                     Consume();
                     if (Char == '=')

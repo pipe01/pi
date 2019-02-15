@@ -3,6 +3,7 @@ using Pi.Parser.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace Tester
@@ -11,15 +12,7 @@ namespace Tester
     {
         static void Main(string[] args)
         {
-            string src = @"let hello = asd.lol.nice(23, ""dab"", test.method(""calling"", 123));
-let what = ""asd this is a string"";
-
-function hello(param1, param2)
-{
-    let hello = ""idk"";
-}
-
-hello();";
+            string src = File.ReadAllText("./src.pi");
 
             var lexer = new Lexer(src);
             var l = lexer.Lex();
@@ -70,7 +63,6 @@ hello();";
                     return;
                 }
             }
-            
 
             Console.WriteLine(ObjectDumper.Dump(decl, DumpStyle.Console));
             Console.ReadKey(true);

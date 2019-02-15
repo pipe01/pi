@@ -37,9 +37,9 @@ namespace Pi
                 this.Source += "\0";
         }
 
-        public LinkedList<Lexeme> Lex()
+        public IList<Lexeme> Lex()
         {
-            var lexList = new LinkedList<Lexeme>();
+            var lexList = new List<Lexeme>();
 
             while (!IsEOF)
             {
@@ -48,10 +48,10 @@ namespace Pi
                 if (lexeme == null)
                     return null;
 
-                lexList.AddLast(lexeme);
+                lexList.Add(lexeme);
             }
 
-            lexList.AddLast(Lexeme(LexemeKind.EndOfFile));
+            lexList.Add(Lexeme(LexemeKind.EndOfFile));
 
             return lexList;
         }

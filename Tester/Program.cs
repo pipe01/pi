@@ -1,5 +1,9 @@
 ﻿using Pi;
+using Pi.Parser.Syntax;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Tester
 {
@@ -7,7 +11,7 @@ namespace Tester
     {
         static void Main(string[] args)
         {
-            var lexer = new Lexer(@"let hello = asd.lol.nice(23, ""dab"", test.method(""calling"", 123));
+            string src = @"let hello = asd.lol.nice(23, ""dab"", test.method(""calling"", 123));
 let what = ""asd this is a string"";
 
 function hello(param1, param2)
@@ -15,7 +19,9 @@ function hello(param1, param2)
     let hello = ""idk"";
 }
 
-hello();");
+hello();";
+
+            var lexer = new Lexer(src);
             var l = lexer.Lex();
 
             foreach (var error in lexer.Errors)
@@ -42,10 +48,37 @@ hello();");
 
             var parser = new PiParser();
 
-            var decl = parser.Parse(l);
+            IEnumerable<Node> decl = parser.Parse(l);
+
+            if (Debugger.IsAttached)
+            {
+                decl = decl.ToArray();
+            }
+            else
+            {
+                try
+                {
+                    decl = decl.ToArray();
+                }
+                catch (SyntaxException ex)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(src.Lines()[ex.Location.Line]);
+                    Console.WriteLine(new string(' ', ex.Location.Column) + "^");
+
+                    return;
+                }
+            }
+            
 
             Console.WriteLine(ObjectDumper.Dump(decl, DumpStyle.Console));
             Console.ReadKey(true);
+        }
+
+        private static string[] Lines(this string str)
+        {
+            return str.Replace("\r", "").Split('\n');
         }
     }
 }

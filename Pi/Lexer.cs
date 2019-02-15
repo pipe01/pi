@@ -12,7 +12,7 @@ namespace Pi
 
         private int Column;
         private int Index;
-        private int Line = 1;
+        private int Line;
         private char Char => Source[Index];
 
         private SourceLocation Location => new SourceLocation(Line, Column, Index);

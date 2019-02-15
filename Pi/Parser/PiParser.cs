@@ -60,13 +60,27 @@ namespace Pi
                     case LexemeKind.NewLine:
                         Advance();
                         break;
+                    case LexemeKind.Identifier:
+                        Back();
+                        var expr = ParseExpression();
+
+                        if (expr is MethodCallExpression)
+                        {
+                            yield return expr;
+                            break;
+                        }
+
+                        goto default;
+                    case LexemeKind.Semicolon:
+                        Advance();
+                        break;
                     default:
-                    Error("Invalid lexeme found: " + Current);
+                        Error("Invalid lexeme found: " + Current);
                         break;
                 }
 
-            breakLoop:;
             }
+        breakLoop:;
         }
 
         private void Advance()
@@ -77,6 +91,14 @@ namespace Pi
                 Index = Lexemes.Length - 1;
         }
         
+        private void Back()
+        {
+            Index--;
+
+            if (Index < 0)
+                Index = 0;
+        }
+
         private void SkipWhitespaces(bool alsoNewlines = true)
         {
             while (Current.Kind == LexemeKind.Whitespace || (Current.Kind == LexemeKind.NewLine && alsoNewlines))
@@ -143,7 +165,7 @@ namespace Pi
 
             do
             {
-                var param = ParseExpression();
+                var param = ParseExpression(false);
 
                 if (param == null)
                     break;

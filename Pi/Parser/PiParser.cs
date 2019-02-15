@@ -257,12 +257,7 @@ namespace Pi
 
             if (references.Count > 0)
             {
-                var reference = new ReferenceExpression(references);
-
-                if (Take(LexemeKind.LeftParenthesis, out _))
-                    ret = new MethodCallExpression(TakeParameters(), reference);
-                else
-                    ret = reference;
+                ret = new ReferenceExpression(references);
 
                 goto exit;
             }
@@ -299,6 +294,11 @@ namespace Pi
                 var right = ParseExpression();
 
                 return new BinaryExpression(left, right, op.Value);
+            }
+
+            if (ret is ReferenceExpression reference && Take(LexemeKind.LeftParenthesis, out _))
+            {
+                ret = new MethodCallExpression(TakeParameters(), reference);
             }
 
             return ret;

@@ -7,13 +7,8 @@ namespace Tester
     {
         static void Main(string[] args)
         {
-            var lexer = new Lexer(@"let hell1o = asd.lol.nice(23, ""dab"", test.method(""calling"", 123));
-let what = ""asd this is a string""[123, 2];
-
-function hello(arg1, arg2)
-{
-
-}");
+            var lexer = new Lexer(@"let hel.lo = asd.lol.nice(23, ""dab"", test.method(""calling"", 123));
+let what = ""asd this is a string"";");
             var l = lexer.Lex();
 
             foreach (var error in lexer.Errors)
@@ -38,9 +33,9 @@ function hello(arg1, arg2)
                 }
             }
 
-            var parser = new PiParser(l);
+            var parser = new PiParser();
 
-            var decl = parser.ParseDeclaration();
+            var decl = parser.Parse(l);
 
             Console.WriteLine(ObjectDumper.Dump(decl, DumpStyle.Console));
             Console.ReadKey(true);

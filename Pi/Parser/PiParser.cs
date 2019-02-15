@@ -8,31 +8,32 @@ namespace Pi
 {
     public class PiParser
     {
-        private readonly Lexeme[] Lexemes;
+        private Lexeme[] Lexemes;
 
         private int Index;
         private Lexeme Current => Lexemes[Index];
 
         private Lexeme NextNonWhitespace => Lexemes.Skip(Index).SkipWhile(o => o.Kind == LexemeKind.Whitespace).First();
-
-        public PiParser(IEnumerable<Lexeme> lexemes)
+        
+        public IEnumerable<Node> Parse(IEnumerable<Lexeme> lexemes)
         {
+            this.Index = 0;
             this.Lexemes = lexemes.ToArray();
+
+            while (Current.Kind != LexemeKind.EndOfFile)
+            {
+                yield return ParseVariableDeclaration();
+            }
         }
 
         private void Advance()
         {
             Index++;
         }
-
-        private void Back()
+        
+        private void SkipWhitespaces(bool alsoNewlines = true)
         {
-            Index--;
-        }
-
-        private void SkipWhitespaces()
-        {
-            while (Current.Kind == LexemeKind.Whitespace)
+            while (Current.Kind == LexemeKind.Whitespace || (Current.Kind == LexemeKind.NewLine && alsoNewlines))
                 Advance();
         }
 
@@ -74,8 +75,11 @@ namespace Pi
             return false;
         }
 
-        private Lexeme TakeKeyword(string keyword, bool @throw = true)
+        private Lexeme TakeKeyword(string keyword, bool ignoreWhitespace = true, bool @throw = true)
         {
+            if (ignoreWhitespace)
+                SkipWhitespaces();
+
             if (Current.Kind != LexemeKind.Keyword || Current.Content != keyword)
             {
                 if (@throw)
@@ -89,23 +93,23 @@ namespace Pi
 
         private IEnumerable<Expression> TakeParameters()
         {
-            while (true)
+            var ret = new List<Expression>();
+
+            do
             {
                 var param = ParseExpression();
 
                 if (param == null)
                     break;
 
-                yield return param;
-
-                if (!Take(LexemeKind.Comma, out _))
-                    break;
+                ret.Add(param);
             }
+            while (Take(LexemeKind.Comma, out _));
 
             if (!Take(LexemeKind.RightParenthesis, out _))
-            {
                 Error("Missing closing parentheses for method call");
-            }
+
+            return ret;
         }
 
         public Expression ParseExpression(bool @throw = true)
@@ -116,9 +120,9 @@ namespace Pi
                 return new ConstantExpression(@int.Content, ConstantKind.Integer);
             else if (Take(LexemeKind.DecimalLiteral, out var dec))
                 return new ConstantExpression(dec.Content, ConstantKind.Decimal);
-            else if (TakeKeyword("true", false) != null)
+            else if (TakeKeyword("true", @throw: false) != null)
                 return new ConstantExpression("true", ConstantKind.Boolean);
-            else if (TakeKeyword("false", false) != null)
+            else if (TakeKeyword("false", @throw: false) != null)
                 return new ConstantExpression("false", ConstantKind.Boolean);
 
             var references = new List<Expression>();
@@ -151,19 +155,30 @@ namespace Pi
             return null;
         }
 
-        public Declaration ParseDeclaration()
+        public VariableDeclaration ParseVariableDeclaration()
         {
             var let = TakeKeyword("let");
             var name = Take(LexemeKind.Identifier);
-            
-            if (Take(LexemeKind.EqualsAssign, out var eq))
+            VariableDeclaration ret;
+
+            if (Take(LexemeKind.EqualsAssign, out _))
             {
                 var value = ParseExpression();
 
-                return new VariableDeclaration(name.Content, value);
+                ret = new VariableDeclaration(name.Content, value);
+            }
+            else
+            {
+                if (Current.Kind != LexemeKind.Semicolon)
+                    Error("Invalid variable name");
+
+                ret = new VariableDeclaration(name.Content, null);
             }
 
-            return new VariableDeclaration(name.Content, null);
+            if (!Take(LexemeKind.Semicolon, out _))
+                Error("Missing semicolon");
+
+            return ret;
         }
     }
 }

@@ -87,7 +87,28 @@ namespace Pi
             return TakeAny();
         }
 
-        public Expression ParseExpression()
+        private IEnumerable<Expression> TakeParameters()
+        {
+            while (true)
+            {
+                var param = ParseExpression();
+
+                if (param == null)
+                    break;
+
+                yield return param;
+
+                if (!Take(LexemeKind.Comma, out _))
+                    break;
+            }
+
+            if (!Take(LexemeKind.RightParenthesis, out _))
+            {
+                Error("Missing closing parentheses for method call");
+            }
+        }
+
+        public Expression ParseExpression(bool @throw = true)
         {
             if (Take(LexemeKind.StringLiteral, out var str))
                 return new ConstantExpression(str.Content, ConstantKind.String);
@@ -102,21 +123,31 @@ namespace Pi
 
             var references = new List<Expression>();
 
+            //Take identifiers and dots
             while (Take(LexemeKind.Identifier, out var identifier))
             {
                 references.Add(new IdentifierExpression(identifier.Content));
 
-                if (!Take(LexemeKind.Dot, out _))
+                if (!Take(LexemeKind.Dot, out _)) //Found a non-dot, break
                     break;
 
-                if (NextNonWhitespace.Kind != LexemeKind.Identifier)
+                if (NextNonWhitespace.Kind != LexemeKind.Identifier) //Found a dot withot an identifier next to it, error
                     Error("Expected identifier after dot");
             }
 
             if (references.Count > 0)
-                return new ReferenceExpression(references);
+            {
+                var reference = new ReferenceExpression(references);
 
-            Error($"Expected expression, got {NextNonWhitespace}");
+                if (Take(LexemeKind.LeftParenthesis, out _))
+                    return new MethodCallExpression(TakeParameters(), reference);
+
+                return reference;
+            }
+
+            if (@throw)
+                Error($"Expected expression, got {NextNonWhitespace}");
+
             return null;
         }
 

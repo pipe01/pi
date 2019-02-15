@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ObjectDumper.NET" Version="2.3.19046.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Pi\Pi.csproj" />
   </ItemGroup>
 

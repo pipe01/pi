@@ -7,7 +7,7 @@ namespace Tester
     {
         static void Main(string[] args)
         {
-            var lexer = new Lexer(@"let hell1o = asd.lol.;
+            var lexer = new Lexer(@"let hell1o = asd.lol.nice(23, ""dab"", test.method(""calling"", 123));
 let what = ""asd this is a string""[123, 2];
 
 function hello(arg1, arg2)
@@ -42,6 +42,7 @@ function hello(arg1, arg2)
 
             var decl = parser.ParseDeclaration();
 
+            Console.WriteLine(ObjectDumper.Dump(decl, DumpStyle.Console));
             Console.ReadKey(true);
         }
     }

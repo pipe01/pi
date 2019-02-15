@@ -38,6 +38,10 @@ namespace Tester
                     Console.WriteLine("{0,-15}: \"{1}\"", item.Kind, item.Content);
                 }
             }
+            else
+            {
+                goto exit;
+            }
 
             var parser = new PiParser();
 
@@ -65,6 +69,8 @@ namespace Tester
             }
 
             Console.WriteLine(ObjectDumper.Dump(decl, DumpStyle.Console));
+
+        exit:
             Console.ReadKey(true);
         }
 

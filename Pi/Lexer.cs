@@ -172,6 +172,12 @@ namespace Pi
 
             while (Char != '"')
             {
+                if (IsNewLine)
+                {
+                    Error("Unexpected end of line, missing quote", Severity.Error);
+                    return null;
+                }
+
                 if (Char == '\0')
                 {
                     Error("Unexpected end of file", Severity.Error);

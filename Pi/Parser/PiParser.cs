@@ -201,7 +201,7 @@ namespace Pi
             return ret;
         }
 
-        public Expression ParseExpression(bool @throw = true)
+        private Expression ParseExpression(bool @throw = true)
         {
             if (Take(LexemeKind.StringLiteral, out var str))
                 return new ConstantExpression(str.Content, ConstantKind.String);
@@ -244,7 +244,7 @@ namespace Pi
             return null;
         }
 
-        public VariableDeclaration ParseVariableDeclaration()
+        private VariableDeclaration ParseVariableDeclaration()
         {
             var let = TakeKeyword("let");
             var name = Take(LexemeKind.Identifier);
@@ -270,7 +270,7 @@ namespace Pi
             return ret;
         }
 
-        public FunctionDeclaration ParseFunctionDeclaration()
+        private FunctionDeclaration ParseFunctionDeclaration()
         {
             var func = TakeKeyword("function");
             var name = Take(LexemeKind.Identifier);

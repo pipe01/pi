@@ -62,5 +62,7 @@ namespace Pi.Lexer
         }
 
         public override string ToString() => $"\"{Content}\" ({Kind})";
+
+        public bool IsVisibilityModifier() => Kind == LexemeKind.Keyword && (Content == "public" || Content == "private");
     }
 }

@@ -14,9 +14,7 @@ namespace Pi.Parser
 
             do
             {
-                var param = Take(LexemeKind.Identifier);
-
-                if (param == null)
+                if (!Take(LexemeKind.Identifier, out var param))
                     break;
 
                 if (!Take(LexemeKind.Colon, out _) || !TakeType(out var type))
@@ -32,9 +30,26 @@ namespace Pi.Parser
             return ret;
         }
 
+        private string TakeVisibility()
+        {
+            string visibility = null;
+
+            int prevIndex = Index;
+            BackUntilNotWhitespace();
+
+            if (Take(LexemeKind.Keyword, out var k) && k.IsVisibilityModifier())
+            {
+                visibility = k.Content;
+            }
+
+            Index = prevIndex;
+
+            return visibility;
+        }
+
         private VariableDeclaration ParseVariableDeclaration()
         {
-            var let = TakeKeyword("let");
+            TakeKeyword("let");
             var name = Take(LexemeKind.Identifier);
             VariableDeclaration ret;
             string type = null;
@@ -62,22 +77,10 @@ namespace Pi.Parser
             return ret;
         }
 
-        private FunctionDeclaration ParseFunctionDeclaration()
+        private FunctionDeclaration ParseFunctionDeclaration(string visibility = null)
         {
-            string visibility = null;
-
-            int prevIndex = Index;
-            BackUntilNotWhitespace();
-
-            if (Take(LexemeKind.Keyword, out var k) && (k.Content == "public" || k.Content == "private"))
-            {
-                visibility = k.Content;
-            }
-
-            Index = prevIndex;
-
-
-            var func = TakeKeyword("function");
+            visibility = visibility ?? TakeVisibility();
+            TakeKeyword("function");
             var name = Take(LexemeKind.Identifier);
 
             if (!Take(LexemeKind.LeftParenthesis, out _))
@@ -98,7 +101,80 @@ namespace Pi.Parser
 
         private ClassDeclaration ParseClassDeclaration()
         {
-            throw new NotImplementedException();
+            var visibility = TakeVisibility();
+            TakeKeyword("class");
+            var name = Take(LexemeKind.Identifier);
+
+            Take(LexemeKind.LeftBrace);
+
+            var (fields, funcs) = ParseClassMemberDeclarations();
+
+            Take(LexemeKind.RightBrace);
+
+            return new ClassDeclaration(Location, name.Content, fields, funcs, visibility);
+        }
+
+        private (List<FieldDeclaration>, List<FunctionDeclaration>) ParseClassMemberDeclarations()
+        {
+            var fields = new List<FieldDeclaration>();
+            var funcs = new List<FunctionDeclaration>();
+
+            while (NextNonWhitespace.Kind != LexemeKind.RightBrace)
+            {
+                if (NextNonWhitespace.IsVisibilityModifier())
+                {
+                    Advance();
+
+                    string visibility = NextNonWhitespace.Content;
+
+                    Advance();
+
+                    if (TakeKeyword("function", @throw: false) != null)
+                    {
+                        BackUntilNotWhitespace();
+
+                        funcs.Add(ParseFunctionDeclaration(visibility));
+                    }
+                    else if (Take(LexemeKind.Identifier, out var identifier))
+                    {
+                        BackUntilNotWhitespace();
+                        fields.Add(ParseFieldDeclaration(visibility));
+                    }
+                }
+
+                Advance();
+            }
+
+            return (fields, funcs);
+        }
+
+        private FieldDeclaration ParseFieldDeclaration(string visibility)
+        {
+            var name = Take(LexemeKind.Identifier);
+            FieldDeclaration ret;
+            string type = null;
+
+            if ((!Take(LexemeKind.Colon, out _) || !TakeType(out type)) && NextNonWhitespace.Kind != LexemeKind.EqualsAssign)
+                Error("Missing field type");
+
+            if (Take(LexemeKind.EqualsAssign, out _))
+            {
+                var value = ParseExpression();
+
+                ret = new FieldDeclaration(Location, name.Content, type, value, visibility);
+            }
+            else
+            {
+                if (Current.Kind != LexemeKind.Semicolon)
+                    Error("Invalid field name");
+
+                ret = new FieldDeclaration(Location, name.Content, type, null, visibility);
+            }
+
+            if (!Take(LexemeKind.Semicolon, out _))
+                MissingSemicolon();
+
+            return ret;
         }
     }
 }

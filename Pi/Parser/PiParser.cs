@@ -58,12 +58,11 @@ namespace Pi.Parser
                             case "class":
                                 yield return ParseClassDeclaration();
                                 break;
-                            case "public":
-                            case "private":
-                                Advance();
-                                break;
                             default:
-                                Error($"Invalid keyword \"{Current.Content}\"");
+                                if (Current.IsVisibilityModifier())
+                                    Advance();
+                                else
+                                    Error($"Invalid keyword \"{Current.Content}\"");
                                 break;
                         }
                         break;
@@ -136,7 +135,7 @@ namespace Pi.Parser
             do Back();
             while (Current.Kind == LexemeKind.Whitespace);
         }
-
+        
         private void SkipWhitespaces(bool alsoNewlines = true)
         {
             while (Current.Kind == LexemeKind.Whitespace || (Current.Kind == LexemeKind.NewLine && alsoNewlines))

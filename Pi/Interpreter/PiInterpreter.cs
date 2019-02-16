@@ -24,8 +24,8 @@ namespace Pi.Interpreter
 
         public void Run()
         {
-            while (Advance())
-                Execute();
+            do Execute();
+            while (Advance());
         }
 
         private bool Advance()
@@ -40,9 +40,9 @@ namespace Pi.Interpreter
 
         private void Execute()
         {
-            if (Current is VariableDeclaration varDec)
+            if (Current is Declaration)
             {
-                Context[varDec.Name] = EvaluateExpression(varDec.Value);
+                EvaluateDeclaration();
             }
             else if (Current is Expression expr)
             {
@@ -50,7 +50,22 @@ namespace Pi.Interpreter
             }
         }
 
-        private object EvaluateExpression(Expression expression)
+        private void EvaluateDeclaration()
+        {
+            if (Current is ClassDeclaration cls)
+            {
+                if (Context.ClassModels.ContainsKey(cls.Name))
+                    throw new DuplicateNameException($"Class with name \"{cls.Name}\" already exists", cls.Location);
+
+                Context.ClassModels[cls.Name] = ClassModel.FromDeclaration(this, cls);
+            }
+            else if (Current is VariableDeclaration varDec)
+            {
+                Context.Locals[varDec.Name] = EvaluateExpression(varDec.Value);
+            }
+        }
+
+        internal object EvaluateExpression(Expression expression)
         {
             if (expression is ConstantExpression constant)
             {
@@ -128,19 +143,19 @@ namespace Pi.Interpreter
 
         private object GetReferenceValue(ReferenceExpression reference)
         {
-            IKeyed<object> container = Context;
+            IDictionary<string, object> container = Context.Locals;
 
             foreach (var item in reference.References)
             {
                 var identifier = (IdentifierExpression)item;
                 
-                if (!container.Get(identifier.Name, out var val))
+                if (!container.TryGetValue(identifier.Name, out var val))
                     throw new InterpreterException($"Field \"{identifier.Name}\" not found on object", reference.Location);
 
-                if (!(val is IKeyed<object> keyed))
+                if (!(val is PiObject obj))
                     throw new InterpreterException("Tried to access field on primitive", reference.Location);
 
-                container = keyed;
+                container = obj.Fields;
             }
 
             return null;

@@ -1,25 +1,19 @@
 ﻿using Pi.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Pi.Interpreter
 {
-    internal class PiObject : IKeyed<object>
+    internal class PiObject
     {
-        private readonly IDictionary<string, object> Fields = new Dictionary<string, object>();
+        public IDictionary<string, object> Fields { get; } = new Dictionary<string, object>();
 
-        public object this[string key]
+        public ClassModel Model { get; }
+
+        public PiObject(ClassModel model)
         {
-            get => Get(key);
-            set => Set(key, value);
+            this.Model = model ?? throw new ArgumentNullException(nameof(model));
         }
-        
-        public string[] GetFieldNames() => Fields.Keys.ToArray();
-
-        public bool Get(string key, out object value) => Fields.TryGetValue(key, out value);
-
-        public object Get(string key) => Fields[key];
-
-        public void Set(string key, object value) => Fields[key] = value;
     }
 }

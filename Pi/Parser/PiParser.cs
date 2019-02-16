@@ -3,6 +3,7 @@ using Pi.Parser.Syntax;
 using Pi.Parser.Syntax.Declarations;
 using Pi.Parser.Syntax.Expressions;
 using Pi.Parser.Syntax.Statements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,6 +56,9 @@ namespace Pi
                                 break;
                             case "else":
                                 yield return ParseElseStatement();
+                                break;
+                            case "class":
+                                yield return ParseClassDeclaration();
                                 break;
                             case "public":
                             case "private":
@@ -467,6 +471,11 @@ namespace Pi
             }
 
             return new ElseStatement(Location, ParseBlock());
+        }
+
+        private ClassDeclaration ParseClassDeclaration()
+        {
+            throw new NotImplementedException();
         }
     }
 }

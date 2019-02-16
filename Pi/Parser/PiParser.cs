@@ -63,7 +63,7 @@ namespace Pi
                         Advance();
                         break;
                     case LexemeKind.Identifier:
-                        Back();
+                        //Back();
                         var expr = ParseExpression();
 
                         if (expr is MethodCallExpression)
@@ -284,6 +284,9 @@ namespace Pi
                     break;
                 case LexemeKind.Div:
                     op = BinaryOperators.Divide;
+                    break;
+                case LexemeKind.EqualsAssign:
+                    op = BinaryOperators.Assign;
                     break;
             }
 

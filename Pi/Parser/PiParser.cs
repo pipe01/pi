@@ -68,6 +68,12 @@ namespace Pi
 
                         if (expr is MethodCallExpression || (expr is BinaryExpression bin && bin.Operator == BinaryOperators.Assign))
                         {
+                            if (NextNonWhitespace.Kind != LexemeKind.Semicolon)
+                            {
+                                Back();
+                                MissingSemicolon();
+                            }
+
                             yield return expr;
                             break;
                         }
@@ -117,6 +123,8 @@ namespace Pi
         {
             throw new SyntaxException(msg, Current.Begin);
         }
+
+        private void MissingSemicolon() => Error("Missing semicolon");
 
         private Lexeme TakeAny()
         {
@@ -330,7 +338,7 @@ namespace Pi
             }
 
             if (!Take(LexemeKind.Semicolon, out _))
-                Error("Missing semicolon");
+                MissingSemicolon();
 
             return ret;
         }

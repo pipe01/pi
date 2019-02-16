@@ -2,29 +2,31 @@
 
 namespace Pi
 {
-    [Serializable]
-    public class SyntaxException : Exception
+    public class LocationException : Exception
     {
         private string _Message;
         public override string Message => _Message;
 
         public SourceLocation Location { get; }
 
-        public SyntaxException(string message, SourceLocation location)
+        public LocationException(string message, SourceLocation location)
         {
             _Message = message + $" at line {location.Line}, column {location.Column}";
             this.Location = location;
         }
     }
     
-    [Serializable]
-    public class InterpreterException : Exception
+    public class SyntaxException : LocationException
     {
-        public InterpreterException() { }
-        public InterpreterException(string message) : base(message) { }
-        public InterpreterException(string message, Exception inner) : base(message, inner) { }
-        protected InterpreterException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+        public SyntaxException(string message, SourceLocation location) : base(message, location)
+        {
+        }
+    }
+    
+    public class InterpreterException : LocationException
+    {
+        public InterpreterException(string message, SourceLocation location) : base(message, location)
+        {
+        }
     }
 }

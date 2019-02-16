@@ -5,7 +5,7 @@ namespace Pi.Lexer
 {
     internal class PiLexer
     {
-        private static readonly string[] Keywords = { "let", "function", "if", "else", "true", "false" };
+        private static readonly string[] Keywords = { "let", "function", "if", "else", "true", "false", "class", "public", "private" };
 
         private readonly string Source;
 

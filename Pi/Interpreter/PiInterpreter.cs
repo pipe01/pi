@@ -113,6 +113,10 @@ namespace Pi.Interpreter
 
                 return ret;
             }
+            else if (expression is ReferenceExpression reference)
+            {
+                return GetReferenceValue(reference);
+            }
 
             return null;
         }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Pi.Parser.Syntax
+﻿namespace Pi.Parser.Syntax
 {
     public abstract class Declaration : Node
     {
@@ -12,5 +8,15 @@ namespace Pi.Parser.Syntax
         {
             this.Name = name;
         }
+    }
+
+    public interface ITyped
+    {
+        string Type { get; }
+    }
+
+    public interface IVisible
+    {
+        string Visibility { get; }
     }
 }

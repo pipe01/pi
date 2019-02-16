@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Pi.Parser.Syntax.Declarations
 {
-    public sealed class ParameterDeclaration : Declaration
+    public sealed class ParameterDeclaration : Declaration, ITyped
     {
         public string Type { get; }
 

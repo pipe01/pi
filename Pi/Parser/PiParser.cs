@@ -56,6 +56,10 @@ namespace Pi
                             case "else":
                                 yield return ParseElseStatement();
                                 break;
+                            case "public":
+                            case "private":
+                                Advance();
+                                break;
                             default:
                                 Error($"Invalid keyword \"{Current.Content}\"");
                                 break;
@@ -123,6 +127,12 @@ namespace Pi
 
             if (Index < 0)
                 Index = 0;
+        }
+
+        private void BackUntilNotWhitespace()
+        {
+            do Back();
+            while (Current.Kind == LexemeKind.Whitespace);
         }
 
         private void SkipWhitespaces(bool alsoNewlines = true)
@@ -370,6 +380,19 @@ namespace Pi
 
         private FunctionDeclaration ParseFunctionDeclaration()
         {
+            string visibility = null;
+
+            int prevIndex = Index;
+            BackUntilNotWhitespace();
+
+            if (Take(LexemeKind.Keyword, out var k) && (k.Content == "public" || k.Content == "private"))
+            {
+                visibility = k.Content;
+            }
+
+            Index = prevIndex;
+
+
             var func = TakeKeyword("function");
             var name = Take(LexemeKind.Identifier);
 
@@ -386,7 +409,7 @@ namespace Pi
 
             var body = ParseBlock(true).ToArray();
 
-            return new FunctionDeclaration(Location, name.Content, @params, body, type);
+            return new FunctionDeclaration(Location, name.Content, @params, body, type, visibility);
         }
 
         private Statement ParseIfStatement(bool elseIf = false)

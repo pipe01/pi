@@ -1,6 +1,6 @@
 ﻿namespace Pi.Parser.Syntax.Declarations
 {
-    public sealed class VariableDeclaration : Declaration
+    public sealed class VariableDeclaration : Declaration, ITyped
     {
         public Expression Value { get; }
         public string Type { get; }

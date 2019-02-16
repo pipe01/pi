@@ -11,7 +11,7 @@ namespace Pi
 
         public LocationException(string message, SourceLocation location)
         {
-            _Message = message + $" at line {location.Line}, column {location.Column}";
+            _Message = message + $" at line {location.Line + 1}, column {location.Column}";
             this.Location = location;
         }
     }

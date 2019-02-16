@@ -405,18 +405,22 @@ namespace Pi
             if (!elseIf)
             {
                 Lexeme @else = null;
+                bool addedElse = false;
 
                 while ((@else = TakeKeyword("else", @throw: false)) != null)
                 {
                     var elseStatement = (ElseStatement)ParseElseStatement();
 
-                    if (elseStatement is ElseIfStatement && elses.Count > 0 && elses.Last() is ElseStatement)
+                    if (elseStatement is ElseIfStatement && addedElse)
                         Error("Else-if must come before else", @else.Begin);
 
-                    if (elseStatement is ElseStatement && elses.Count > 0 && elses.Any(o => o is ElseStatement && !(o is ElseIfStatement)))
+                    if (elseStatement is ElseStatement && addedElse)
                         Error("Only one else is allowed per if statement", @else.Begin);
 
                     elses.Add(elseStatement);
+
+                    if (elseStatement is ElseStatement && !(elseStatement is ElseIfStatement))
+                        addedElse = true;
 
                     Advance();
                 }

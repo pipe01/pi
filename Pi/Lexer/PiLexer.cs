@@ -5,7 +5,7 @@ namespace Pi.Lexer
 {
     internal class PiLexer
     {
-        private static readonly string[] Keywords = { "let", "function", "true", "false" };
+        private static readonly string[] Keywords = { "let", "function", "if", "else", "true", "false" };
 
         private readonly string Source;
 
@@ -21,7 +21,7 @@ namespace Pi.Lexer
         private bool IsDigit => char.IsDigit(Char);
         private bool IsNewLine => Char == '\n';
         private bool IsSymbol => "<>{}()[]!%^&*+-=/.,?;:|".Contains(Char);
-        private bool IsWhitespace => Char == ' ';
+        private bool IsWhitespace => Char == ' ' || Char == '\t';
         private bool IsKeyword => Keywords.Contains(Buffer);
 
         private string Buffer = "";

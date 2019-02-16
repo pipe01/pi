@@ -13,6 +13,10 @@ namespace Pi.Interpreter
 
         private readonly Context Context = new Context();
 
+        private int Index;
+        private Node Current => Nodes[Index];
+        private Node Next => Index < Nodes.Length - 1 ? Nodes[Index + 1] : null;
+
         public PiInterpreter(IEnumerable<Node> nodes)
         {
             this.Nodes = nodes.ToArray();
@@ -20,19 +24,27 @@ namespace Pi.Interpreter
 
         public void Run()
         {
-            foreach (var node in Nodes)
-            {
-                Execute(node);
-            }
+            while (Advance())
+                Execute();
         }
 
-        private void Execute(Node node)
+        private bool Advance()
         {
-            if (node is VariableDeclaration varDec)
+            Index++;
+
+            if (Index >= Nodes.Length)
+                return false;
+
+            return true;
+        }
+
+        private void Execute()
+        {
+            if (Current is VariableDeclaration varDec)
             {
                 Context[varDec.Name] = EvaluateExpression(varDec.Value);
             }
-            else if (node is Expression expr)
+            else if (Current is Expression expr)
             {
                 EvaluateExpression(expr);
             }

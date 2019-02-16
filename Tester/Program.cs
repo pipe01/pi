@@ -75,6 +75,9 @@ namespace Tester
             var inter = new PiInterpreter(decl);
             inter.Run();
 
+            Console.WriteLine();
+            Console.WriteLine("Done!");
+
         exit:
             Console.ReadKey(true);
         }

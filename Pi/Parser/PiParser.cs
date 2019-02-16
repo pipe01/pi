@@ -2,6 +2,7 @@
 using Pi.Parser.Syntax;
 using Pi.Parser.Syntax.Declarations;
 using Pi.Parser.Syntax.Expressions;
+using Pi.Parser.Syntax.Statements;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -48,6 +49,9 @@ namespace Pi
                                 break;
                             case "function":
                                 yield return ParseFunctionDeclaration();
+                                break;
+                            case "if":
+                                yield return ParseIfStatement();
                                 break;
                             default:
                                 Error($"Invalid keyword \"{Current.Content}\"");
@@ -374,6 +378,18 @@ namespace Pi
             var body = ParseBlock(true).ToArray();
 
             return new FunctionDeclaration(Location, name.Content, @params, body, type);
+        }
+
+        private IfStatement ParseIfStatement()
+        {
+            var @if = TakeKeyword("if");
+            Take(LexemeKind.LeftParenthesis);
+
+            var cond = ParseExpression();
+
+            Take(LexemeKind.RightParenthesis);
+
+            return new IfStatement(Location, cond, new BlockStatement(Location, ParseBlock(true).ToArray()));
         }
     }
 }

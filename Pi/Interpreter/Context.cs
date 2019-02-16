@@ -1,24 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using Pi.Utils;
+using System.Collections.Generic;
 
 namespace Pi.Interpreter
 {
-    internal class Context
+    internal class Context : IKeyed<object>
     {
         private IDictionary<string, object> Locals = new Dictionary<string, object>();
-
-        public bool GetLocal(string name, out object value)
+        
+        public object this[string key]
         {
-            return Locals.TryGetValue(name, out value);
+            get => Get(key);
+            set => Set(key, value);
         }
 
-        public object GetLocal(string name)
+        public bool Get(string key, out object value)
         {
-            return Locals[name];
+            return Locals.TryGetValue(key, out value);
         }
 
-        public void SetLocal(string name, object value)
+        public object Get(string key)
         {
-            Locals[name] = value;
+            return Locals[key];
+        }
+
+        public void Set(string key, object value)
+        {
+            Locals[key] = value;
         }
     }
 }

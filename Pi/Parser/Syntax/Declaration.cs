@@ -8,7 +8,7 @@ namespace Pi.Parser.Syntax
     {
         public string Name { get; }
 
-        protected Declaration(string name)
+        protected Declaration(SourceLocation location, string name) : base(location)
         {
             this.Name = name;
         }

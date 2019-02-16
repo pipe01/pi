@@ -9,7 +9,7 @@ namespace Pi.Parser.Syntax.Expressions
         public IEnumerable<Expression> Arguments { get; }
         public Expression Reference { get; }
 
-        public MethodCallExpression(IEnumerable<Expression> arguments, Expression reference)
+        public MethodCallExpression(SourceLocation location, IEnumerable<Expression> arguments, Expression reference) : base(location)
         {
             this.Arguments = arguments;
             this.Reference = reference;

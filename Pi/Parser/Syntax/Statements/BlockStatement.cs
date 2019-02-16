@@ -6,7 +6,7 @@ namespace Pi.Parser.Syntax.Statements
     {
         public IEnumerable<Node> Contents { get; }
 
-        public BlockStatement(IEnumerable<Node> contents)
+        public BlockStatement(SourceLocation location, IEnumerable<Node> contents) : base(location)
         {
             this.Contents = contents;
         }

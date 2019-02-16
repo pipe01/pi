@@ -17,7 +17,7 @@ namespace Pi.Parser.Syntax.Expressions
         public string Value { get; }
         public ConstantKind Kind { get; }
 
-        public ConstantExpression(string value, ConstantKind kind)
+        public ConstantExpression(SourceLocation location, string value, ConstantKind kind) : base(location)
         {
             this.Value = value;
             this.Kind = kind;

@@ -8,7 +8,7 @@ namespace Pi.Parser.Syntax.Expressions
     {
         public string Name { get; }
 
-        public IdentifierExpression(string name)
+        public IdentifierExpression(SourceLocation location, string name) : base(location)
         {
             this.Name = name;
         }

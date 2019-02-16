@@ -13,6 +13,7 @@ namespace Pi
 
         private int Index;
         private Lexeme Current => Lexemes[Index];
+        private SourceLocation Location => Current.Begin;
 
         private Lexeme NextNonWhitespace => Lexemes.Skip(Index).SkipWhile(o => o.Kind == LexemeKind.Whitespace).First();
         
@@ -198,7 +199,7 @@ namespace Pi
                 if (param == null)
                     break;
 
-                ret.Add(new ParameterDeclaration(param.Content));
+                ret.Add(new ParameterDeclaration(Location, param.Content));
             }
             while (Take(LexemeKind.Comma, out _));
 
@@ -228,15 +229,15 @@ namespace Pi
 
             //Try to parse literal
             if (Take(LexemeKind.StringLiteral, out var str))
-                ret = new ConstantExpression(str.Content, ConstantKind.String);
+                ret = new ConstantExpression(Location, str.Content, ConstantKind.String);
             else if (Take(LexemeKind.IntegerLiteral, out var @int))
-                ret = new ConstantExpression(@int.Content, ConstantKind.Integer);
+                ret = new ConstantExpression(Location, @int.Content, ConstantKind.Integer);
             else if (Take(LexemeKind.DecimalLiteral, out var dec))
-                ret = new ConstantExpression(dec.Content, ConstantKind.Decimal);
+                ret = new ConstantExpression(Location, dec.Content, ConstantKind.Decimal);
             else if (TakeKeyword("true", @throw: false) != null)
-                ret = new ConstantExpression("true", ConstantKind.Boolean);
+                ret = new ConstantExpression(Location, "true", ConstantKind.Boolean);
             else if (TakeKeyword("false", @throw: false) != null)
-                ret = new ConstantExpression("false", ConstantKind.Boolean);
+                ret = new ConstantExpression(Location, "false", ConstantKind.Boolean);
 
             if (ret != null)
                 goto exit;
@@ -247,7 +248,7 @@ namespace Pi
             //Take identifiers and dots
             while (Take(LexemeKind.Identifier, out var identifier))
             {
-                references.Add(new IdentifierExpression(identifier.Content));
+                references.Add(new IdentifierExpression(Location, identifier.Content));
 
                 if (!Take(LexemeKind.Dot, out _)) //Found a non-dot, break
                     break;
@@ -258,7 +259,7 @@ namespace Pi
 
             if (references.Count > 0)
             {
-                ret = new ReferenceExpression(references);
+                ret = new ReferenceExpression(Location, references);
 
                 goto exit;
             }
@@ -294,12 +295,12 @@ namespace Pi
                 var left = ret;
                 var right = ParseExpression();
 
-                return new BinaryExpression(left, right, op.Value);
+                return new BinaryExpression(Location, left, right, op.Value);
             }
 
             if (ret is ReferenceExpression reference && Take(LexemeKind.LeftParenthesis, out _))
             {
-                ret = new MethodCallExpression(TakeParameters(), reference);
+                ret = new MethodCallExpression(Location, TakeParameters(), reference);
             }
 
             return ret;
@@ -315,14 +316,14 @@ namespace Pi
             {
                 var value = ParseExpression();
 
-                ret = new VariableDeclaration(name.Content, value);
+                ret = new VariableDeclaration(Location, name.Content, value);
             }
             else
             {
                 if (Current.Kind != LexemeKind.Semicolon)
                     Error("Invalid variable name");
 
-                ret = new VariableDeclaration(name.Content, null);
+                ret = new VariableDeclaration(Location, name.Content, null);
             }
 
             if (!Take(LexemeKind.Semicolon, out _))
@@ -342,7 +343,7 @@ namespace Pi
             var @params = TakeParameterDeclarations();
             var body = ParseBlock(true).ToArray();
 
-            return new FunctionDeclaration(name.Content, @params, body);
+            return new FunctionDeclaration(Location, name.Content, @params, body);
         }
     }
 }

@@ -4,7 +4,7 @@
     {
         public Expression Value { get; }
 
-        public VariableDeclaration(string name, Expression value) : base(name)
+        public VariableDeclaration(SourceLocation location, string name, Expression value) : base(location, name)
         {
             this.Value = value;
         }

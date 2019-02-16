@@ -6,7 +6,7 @@ namespace Pi.Parser.Syntax.Expressions
     {
         public IEnumerable<Expression> References { get; }
 
-        public ReferenceExpression(IEnumerable<Expression> references)
+        public ReferenceExpression(SourceLocation location, IEnumerable<Expression> references) : base(location)
         {
             this.References = references;
         }

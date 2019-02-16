@@ -10,7 +10,7 @@ namespace Pi.Parser.Syntax.Expressions
         public BinaryOperators Operator { get; }
         public Expression Right { get; }
 
-        public BinaryExpression(Expression left, Expression right, BinaryOperators @operator)
+        public BinaryExpression(SourceLocation location, Expression left, Expression right, BinaryOperators @operator) : base(location)
         {
             this.Left = left;
             this.Operator = @operator;

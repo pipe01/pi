@@ -53,6 +53,9 @@ namespace Pi
                             case "if":
                                 yield return ParseIfStatement();
                                 break;
+                            case "else":
+                                yield return ParseElseStatement();
+                                break;
                             default:
                                 Error($"Invalid keyword \"{Current.Content}\"");
                                 break;
@@ -95,6 +98,11 @@ namespace Pi
         breakLoop:;
         }
 
+        private BlockStatement ParseBlock()
+        {
+            return new BlockStatement(Location, ParseBlock(true).ToArray());
+        }
+
         private void Advance()
         {
             Index++;
@@ -123,9 +131,10 @@ namespace Pi
                 Advance();
         }
 
-        private void Error(string msg)
+        private void Error(string msg) => Error(msg, Location);
+        private void Error(string msg, SourceLocation location)
         {
-            throw new SyntaxException(msg, Current.Begin);
+            throw new SyntaxException(msg, location);
         }
 
         private void MissingSemicolon() => Error("Missing semicolon");
@@ -380,7 +389,7 @@ namespace Pi
             return new FunctionDeclaration(Location, name.Content, @params, body, type);
         }
 
-        private IfStatement ParseIfStatement()
+        private Statement ParseIfStatement(bool elseIf = false)
         {
             var @if = TakeKeyword("if");
             Take(LexemeKind.LeftParenthesis);
@@ -389,7 +398,48 @@ namespace Pi
 
             Take(LexemeKind.RightParenthesis);
 
-            return new IfStatement(Location, cond, new BlockStatement(Location, ParseBlock(true).ToArray()));
+            var body = ParseBlock();
+
+            var elses = new List<ElseStatement>();
+
+            if (!elseIf)
+            {
+                Lexeme @else = null;
+
+                while ((@else = TakeKeyword("else", @throw: false)) != null)
+                {
+                    var elseStatement = (ElseStatement)ParseElseStatement();
+
+                    if (elseStatement is ElseIfStatement && elses.Count > 0 && elses.Last() is ElseStatement)
+                        Error("Else-if must come before else", @else.Begin);
+
+                    if (elseStatement is ElseStatement && elses.Count > 0 && elses.Any(o => o is ElseStatement && !(o is ElseIfStatement)))
+                        Error("Only one else is allowed per if statement", @else.Begin);
+
+                    elses.Add(elseStatement);
+
+                    Advance();
+                }
+            }
+            
+            if (elseIf)
+                return new ElseIfStatement(Location, cond, body);
+
+            return new IfStatement(Location, cond, body, elses);
+        }
+
+        private Statement ParseElseStatement()
+        {
+            Advance();
+            var @if = TakeKeyword("if", @throw: false);
+
+            if (@if != null)
+            {
+                Back();
+                return ParseIfStatement(true);
+            }
+
+            return new ElseStatement(Location, ParseBlock());
         }
     }
 }

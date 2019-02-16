@@ -70,7 +70,9 @@ namespace Tester
                 }
             }
 
-            Console.WriteLine(ObjectDumper.Dump(decl, DumpStyle.Console));
+            string dump = ObjectDumper.Dump(decl, DumpStyle.Console);
+            Console.WriteLine(dump);
+            File.WriteAllText("./dump.txt", dump);
 
             var inter = new PiInterpreter(decl);
             inter.Run();

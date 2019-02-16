@@ -1,6 +1,6 @@
 ﻿namespace Pi.Parser.Syntax.Statements
 {
-    public sealed class ElseIfStatement : BodyStatement
+    public sealed class ElseIfStatement : ElseStatement
     {
         public Expression Condition { get; }
 

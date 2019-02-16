@@ -196,6 +196,11 @@ namespace Pi
             return ret;
         }
 
+        private bool TakeType(out string type)
+        {
+            return (type = Take(LexemeKind.Identifier).Content) != null;
+        }
+
         private IEnumerable<ParameterDeclaration> TakeParameterDeclarations()
         {
             var ret = new List<ParameterDeclaration>();
@@ -207,7 +212,10 @@ namespace Pi
                 if (param == null)
                     break;
 
-                ret.Add(new ParameterDeclaration(Location, param.Content));
+                if (!Take(LexemeKind.Colon, out _) || !TakeType(out var type))
+                    Error("Missing type for parameter");
+                else
+                    ret.Add(new ParameterDeclaration(Location, param.Content, type));
             }
             while (Take(LexemeKind.Comma, out _));
 
@@ -322,19 +330,23 @@ namespace Pi
             var let = TakeKeyword("let");
             var name = Take(LexemeKind.Identifier);
             VariableDeclaration ret;
+            string type = null;
+
+            if ((!Take(LexemeKind.Colon, out _) || !TakeType(out type)) && NextNonWhitespace.Kind != LexemeKind.EqualsAssign)
+                Error("Missing variable type");
 
             if (Take(LexemeKind.EqualsAssign, out _))
             {
                 var value = ParseExpression();
 
-                ret = new VariableDeclaration(Location, name.Content, value);
+                ret = new VariableDeclaration(Location, name.Content, value, type);
             }
             else
             {
                 if (Current.Kind != LexemeKind.Semicolon)
                     Error("Invalid variable name");
 
-                ret = new VariableDeclaration(Location, name.Content, null);
+                ret = new VariableDeclaration(Location, name.Content, null, type);
             }
 
             if (!Take(LexemeKind.Semicolon, out _))
@@ -352,9 +364,16 @@ namespace Pi
                 Error("Missing opening parenthesis for method declaration");
 
             var @params = TakeParameterDeclarations();
+            string type = null;
+
+            if (Take(LexemeKind.Colon, out _) && !TakeType(out type))
+            {
+                Error("Type expected after colon");
+            }
+
             var body = ParseBlock(true).ToArray();
 
-            return new FunctionDeclaration(Location, name.Content, @params, body);
+            return new FunctionDeclaration(Location, name.Content, @params, body, type);
         }
     }
 }

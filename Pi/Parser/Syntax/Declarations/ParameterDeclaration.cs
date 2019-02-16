@@ -6,8 +6,11 @@ namespace Pi.Parser.Syntax.Declarations
 {
     public sealed class ParameterDeclaration : Declaration
     {
-        public ParameterDeclaration(SourceLocation location, string name) : base(location, name)
+        public string Type { get; }
+
+        public ParameterDeclaration(SourceLocation location, string name, string type) : base(location, name)
         {
+            this.Type = type;
         }
     }
 }

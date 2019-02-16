@@ -6,12 +6,14 @@ namespace Pi.Parser.Syntax.Declarations
     {
         public IEnumerable<ParameterDeclaration> Parameters { get; }
         public IEnumerable<Node> Body { get; }
+        public string ReturnType { get; }
 
         public FunctionDeclaration(SourceLocation location, string name, IEnumerable<ParameterDeclaration> parameters,
-            IEnumerable<Node> body) : base(location, name)
+            IEnumerable<Node> body, string returnType) : base(location, name)
         {
             this.Parameters = parameters;
             this.Body = body;
+            this.ReturnType = returnType;
         }
     }
 }

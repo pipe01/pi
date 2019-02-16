@@ -14,6 +14,7 @@ namespace Pi.Lexer
         DecimalLiteral,
 
         Semicolon,
+        Colon,
         Comma,
         Dot,
         FatArrow,
@@ -41,8 +42,7 @@ namespace Pi.Lexer
         LeftBrace,
         RightBrace,
 
-        QuestionMark,
-        Colon
+        QuestionMark
     }
 
     [DebuggerDisplay("{Kind}: {Content}")]

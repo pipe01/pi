@@ -66,7 +66,7 @@ namespace Pi
                         //Back();
                         var expr = ParseExpression();
 
-                        if (expr is MethodCallExpression)
+                        if (expr is MethodCallExpression || (expr is BinaryExpression bin && bin.Operator == BinaryOperators.Assign))
                         {
                             yield return expr;
                             break;

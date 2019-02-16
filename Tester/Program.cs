@@ -1,4 +1,5 @@
 ﻿using Pi;
+using Pi.Interpreter;
 using Pi.Lexer;
 using Pi.Parser.Syntax;
 using System;
@@ -70,6 +71,9 @@ namespace Tester
             }
 
             Console.WriteLine(ObjectDumper.Dump(decl, DumpStyle.Console));
+
+            var inter = new PiInterpreter(decl);
+            inter.Run();
 
         exit:
             Console.ReadKey(true);

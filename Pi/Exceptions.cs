@@ -29,11 +29,4 @@ namespace Pi
         {
         }
     }
-
-    public class DuplicateNameException : LocationException
-    {
-        public DuplicateNameException(string message, SourceLocation location) : base(message, location)
-        {
-        }
-    }
 }

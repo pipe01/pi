@@ -11,7 +11,7 @@ namespace Pi.Interpreter
     {
         private readonly Node[] Nodes;
 
-        private readonly Context Context = new Context();
+        internal readonly Context Context = new Context();
 
         private int Index;
         private Node Current => Nodes[Index];
@@ -55,7 +55,7 @@ namespace Pi.Interpreter
             if (Current is ClassDeclaration cls)
             {
                 if (Context.ClassModels.ContainsKey(cls.Name))
-                    throw new DuplicateNameException($"Class with name \"{cls.Name}\" already exists", cls.Location);
+                    throw new InterpreterException($"Class with name \"{cls.Name}\" already exists", cls.Location);
 
                 Context.ClassModels[cls.Name] = ClassModel.FromDeclaration(this, cls);
             }

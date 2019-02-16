@@ -3,12 +3,14 @@ using System.Collections.Generic;
 
 namespace Pi.Interpreter
 {
-    internal class ClassModel
+    internal class ClassModel : PiType
     {
+        public override string Name { get; }
         public ModelField[] Fields { get; }
 
-        public ClassModel(ModelField[] fields)
+        public ClassModel(string name, ModelField[] fields)
         {
+            this.Name = name;
             this.Fields = fields;
         }
 
@@ -23,22 +25,29 @@ namespace Pi.Interpreter
                 if (field.DefaultValue != null)
                     value = interpreter.EvaluateExpression(field.DefaultValue);
 
-                fields.Add(new ModelField(field.Name, value));
+                PiType fieldType = interpreter.Context.GetPiType(field.Type);
+
+                if (fieldType == null)
+                    throw new InterpreterException($"Type \"{field.Type}\" not found", field.Location);
+
+                fields.Add(new ModelField(field.Name, value, fieldType));
             }
 
-            return new ClassModel(fields.ToArray());
+            return new ClassModel(declaration.Name, fields.ToArray());
         }
     }
 
     internal class ModelField
     {
+        public PiType Type { get; }   
         public string Name { get; }
         public object DefaultValue { get; }
 
-        public ModelField(string name, object defaultValue)
+        public ModelField(string name, object defaultValue, PiType type)
         {
             this.Name = name;
             this.DefaultValue = defaultValue;
+            this.Type = type;
         }
     }
 }

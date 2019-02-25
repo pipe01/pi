@@ -94,6 +94,9 @@ namespace Pi.Parser
                     case LexemeKind.Semicolon:
                         Advance();
                         break;
+                    case LexemeKind.ExclamationMark:
+
+                        break;
                     default:
                         Error("Invalid lexeme found: " + Current);
                         break;

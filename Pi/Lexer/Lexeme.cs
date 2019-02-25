@@ -42,7 +42,8 @@ namespace Pi.Lexer
         LeftBrace,
         RightBrace,
 
-        QuestionMark
+        QuestionMark,
+        ExclamationMark
     }
 
     [DebuggerDisplay("{Kind}: {Content}")]

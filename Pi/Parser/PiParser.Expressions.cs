@@ -25,6 +25,11 @@ namespace Pi.Parser
                 goto exit;
             }
 
+            if (Take(LexemeKind.ExclamationMark, out _))
+            {
+                return new UnaryExpression(Location, UnaryOperators.LogicalNegation, ParseExpression());
+            }
+
             //Try to parse literal
             if (Take(LexemeKind.StringLiteral, out var str))
                 ret = new ConstantExpression(Location, str.Content, ConstantKind.String);
@@ -67,28 +72,28 @@ namespace Pi.Parser
 
             exit:
             //Check for binary operator
-            BinaryOperators? op = null;
+            BinaryOperators? binOp = null;
 
             switch (NextNonWhitespace.Kind)
             {
                 case LexemeKind.Plus:
-                    op = BinaryOperators.Add;
+                    binOp = BinaryOperators.Add;
                     break;
                 case LexemeKind.Minus:
-                    op = BinaryOperators.Subtract;
+                    binOp = BinaryOperators.Subtract;
                     break;
                 case LexemeKind.Mult:
-                    op = BinaryOperators.Multiply;
+                    binOp = BinaryOperators.Multiply;
                     break;
                 case LexemeKind.Div:
-                    op = BinaryOperators.Divide;
+                    binOp = BinaryOperators.Divide;
                     break;
                 case LexemeKind.EqualsAssign:
-                    op = BinaryOperators.Assign;
+                    binOp = BinaryOperators.Assign;
                     break;
             }
 
-            if (op != null)
+            if (binOp != null)
             {
                 Advance();
                 AdvanceUntilNotWhitespace();
@@ -96,13 +101,14 @@ namespace Pi.Parser
                 var left = ret;
                 var right = ParseExpression();
 
-                return new BinaryExpression(Location, left, right, op.Value);
+                return new BinaryExpression(Location, left, right, binOp.Value);
             }
 
+            if (Take(LexemeKind.Dot, out _))
+                ret = new ReferenceExpression(Location, new Expression[] { ret, ParseExpression() });
+
             if (ret is ReferenceExpression reference && Take(LexemeKind.LeftParenthesis, out _))
-            {
                 ret = new MethodCallExpression(Location, TakeParameters(), reference);
-            }
 
             return ret;
         }

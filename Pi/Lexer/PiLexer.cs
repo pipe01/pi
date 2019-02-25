@@ -225,7 +225,7 @@ namespace Pi.Lexer
                         return Lexeme(LexemeKind.NotEqual);
 
                     Back();
-                    break;
+                    return Lexeme(LexemeKind.ExclamationMark);
                 case '(':
                     return Lexeme(LexemeKind.LeftParenthesis);
                 case ')':

@@ -62,12 +62,16 @@ namespace Tester
                 }
                 catch (SyntaxException ex)
                 {
+                    var line = src.Lines()[ex.Location.Line];
+                    int tabCount = line.TakeWhile(o => o == '\t').Count();
+                    line = new string(' ', tabCount) + line.TrimStart('\t');
+
                     Console.WriteLine();
                     Console.WriteLine(ex.Message);
-                    Console.WriteLine(src.Lines()[ex.Location.Line]);
+                    Console.WriteLine(line);
                     Console.WriteLine(new string(' ', ex.Location.Column - 1) + "^");
 
-                    return;
+                    goto exit;
                 }
             }
 

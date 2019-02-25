@@ -13,4 +13,10 @@
     <ProjectReference Include="..\Pi\Pi.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="src.pi">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

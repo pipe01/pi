@@ -1,0 +1,9 @@
+public class test
+{
+	public function asd()
+	{
+		let asd : type = !(my.mdas).butt();
+	}
+
+	public dasdasd : int = 123;
+}
